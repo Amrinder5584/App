@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Our Lovely Story App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --card-bg: #fff7fb;
+      --accent: #faa5ee;
+      --btn: #f9b5d1;
+      --soft-pastel: #f8d4ef;
+      --timeline-bg: #f0ebfd;
+      --frame: #f8ecff;
+      --milestone: #e0bae4;
+      --font-head: 'Pacifico',cursive;
+      --font-body: 'Quicksand',sans-serif;
+    }
+    body {
+      font-family: var(--font-body);
+      background: linear-gradient(135deg,#ffe9ea 27%,#c8e7fa 90%);
+      min-height: 100vh; margin:0; padding:0;
+    }
+    #app, .emoji-burst {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 80vh;
+      width:100vw;
+    }
+    .nav-btns {
+      margin: 12px 0 28px 0;
+      width: 98vw; max-width:428px;
+      display: flex; justify-content: space-between;
+    }
+    button {
+      font-size:1em;
+      padding: 10px 24px;
+      border:none;
+      border-radius:14px;
+      background: var(--btn);
+      color: #fff; cursor:pointer;
+      font-family:var(--font-body);
+      box-shadow: 0 2px var(--accent);
+      transition:background 0.3s;
+    }
+    button:disabled {
+      background:#eee; color:#ccc;
+    }
+    .section {
+      width: 98vw; max-width: 440px;
+      margin:0 auto;
+      padding: 17px 12px;
+      background: var(--card-bg);
+      border-radius: 31px;
+      box-shadow:0 12px 46px 0 #ffd2eb66;
+      position:relative;
+      text-align: center;
+      overflow:hidden
+    }
+    h2, h3 {
+      font-family:var(--font-head);
+      color:#ea71ad;
+      margin-top:14px;
+    }
+    .cute-heart { width:46px;animation:pulse 2.2s infinite alternate;}
+    @keyframes pulse {0%{transform:scale(1);}100%{transform:scale(1.36);}
+    }
+    .emoji-burst {position:fixed;width:100vw;height:100vh;left:0;top:0;pointer-events:none;z-index:2000;}
+    .emoji {position:fixed;font-size:2em;opacity:0;animation:pop 1.8s ease-in-out forwards;}
+    @keyframes pop {0%{transform:scale(0.7) translateY(0);}18%{opacity:1;}40%{opacity:1;transform:scale(1.6) translateY(-80px);}100%{opacity:0;transform:scale(2.2) translateY(-150px);}
+    }
+    /* Timeline Card */
+    .timeline-card {
+      background: var(--timeline-bg);
+      border-radius: 36px;
+      box-shadow: 0 4px 40px #c6b2e5aa;
+      padding:12px 6px 22px 6px;
+      margin-top:16px;
+      position:relative;
+      width:93vw;
+      max-width:415px;
+      text-align:center;
+    }
+    .timel-photo-frame {
+      background: var(--frame);
+      border-radius: 21px;
+      padding:8px;
+      margin-bottom:18px;
+      box-shadow: 0 1px 16px #d7b6e3bb;
+      display:flex; justify-content:center;align-items:center;height:102px;
+    }
+    .timel-photo-frame img {
+      width:92px;
+      border-radius:15px;
+      border:8px solid #efd6ff;
+      object-fit:cover;
+      margin:auto;
+    }
+    .milestones {
+      display:flex; flex-wrap: wrap; justify-content:space-around; gap:9px 12px;margin-bottom:10px;
+    }
+    .milestone {
+      background: var(--milestone);
+      border-radius:21px;
+      box-shadow:0 2px #dfa4c233;
+      padding:8px 13px;
+      font-size:1.03em;
+      display:flex;align-items:center;gap:5px;
+      color:#9a4fd1;
+      margin:4px 0 2px 0;
+    }
+    .timel-msg {
+      font-size:1.09em;margin:14px 0 11px 0;color:#d881df;
+    }
+    .timeline-next-btn {
+      position:absolute;
+      bottom:12px; right:18px;
+      background: var(--accent);
+      color:#fff;
+      border:none;
+      border-radius:17px;
+      padding:9px 22px;
+      font-size:1.13em;
+      box-shadow:0 2px #fff3;
+      font-family:var(--font-head);
+      cursor:pointer;
+      transition:background .2s;
+    }
+    /* Find the Word Game */
+    .gameGrid {display:grid;grid-template-columns:repeat(4,54px);grid-template-rows:repeat(4,54px);gap:7px;margin:19px auto 9px auto;}
+    .gridCell {
+      background:#fff6de;
+      border-radius: 50%;
+      font-size:1.64em;
+      color:#d37ca3;
+      font-weight:700;
+      box-shadow:0 2px #ead1ff33;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; user-select:none;
+      border:2.2px solid #ffd1de;
+      position:relative;transition:background 0.21s;
+    }
+    .gridCell.selected {background:#ffe2f6;border-color:#a692ea;}
+    .gridCell.highlight {box-shadow:0 0 14px 0 #fc9ed9a0;background:#e6f2fc;border:2.2px solid #ae95ec;}
+    .loveCounter,.bonusCounter {font-size:1.01em;margin:5px 0 7px 0;color:#e85;}
+    .popup {
+      position: fixed;top: 53%;left: 50%;transform: translate(-50%,-50%);
+      background: #fff7fc;box-shadow:0 7px 42px #efa1df66;border-radius:29px;z-index:4000;padding:22px 20px;min-width:220px;text-align:center;font-size:1.2em;animation:pop .55s;
+    }
+    .popup .emoji {font-size:3em;display:block;}
+    .btnRow {display:flex;justify-content:center;gap:16px;margin:17px 0;}
+    .quizOptionBtn {
+      margin:7px 2px; padding:7px 12px;font-size:1em;
+      background:#fff1f7;color:#d7377a;
+      border-radius:10px;box-shadow: 0 1px #f9b5d155;border:none;width:86%;
+    }
+    #cryFace {
+      font-size:1em; width:78%; border-radius:8px; margin:9px 0 13px 0; padding:8px;border:1.2px solid #eba8ec;outline:none;
+    }
+    @media (max-width:500px){
+      .section {padding:12px 2px;}
+      .nav-btns{width:100vw;}
+      .timeline-card {max-width:99vw;}
+      .gameGrid{grid-template-columns:repeat(4,39px);grid-template-rows:repeat(4,39px);}
+      .gridCell{font-size:.88em;}
+      .popup{min-width:120px;}
+      .timeline-next-btn {padding:7px 14px;}
+    }
+  </style>
+</head>
+<body>
+<div id="app"></div>
+<div class="nav-btns">
+  <button id="prevBtn" disabled>&larr; Back</button>
+  <button id="nextBtn">Next &rarr;</button>
+</div>
+<div id="emojiBurst" class="emoji-burst"></div>
+<div id="popDialog" style="display:none"></div>
+<script>
+let page = 0;
+const pages = [
+  // 1. Start / Comfort
+  `<div class="section"><h2>Hi My Love! <img src="https://img.icons8.com/emoji/48/heart-with-arrow.png" class="cute-heart"></h2>
+    <p>If you feel sad, let me send virtual hugs and kisses. <br>You're my world, always my happy place. 😘</p>
+    <img style="width:120px;border-radius:60px;margin:13px 0;border:4px solid #faa5ee;box-shadow:0 4px 21px #eca4ba44" src="US.jpg" alt="her-pic">
+    <small>Tap <b>Next</b> for magical surprises 💞</small>
+  </div>`,
+  // 2. Heartfall / collage
+  `<div class="section"><h3>Your Journey</h3>
+    <img src="https://img.icons8.com/color/96/like--v1.png" style="width:54px;animation:pulse 2.1s;">
+    <div style="margin:10px 0;">
+      
+      <img src="child.jpg" alt="kid" style="border-radius:50%;width:41px;margin:7px;">
+      <img src="kid.jpg" alt="teen" style="border-radius:50%;width:41px;margin:7px;">
+      <img src="now.jpg" alt="now" style="border-radius:50%;width:41px;margin:7px;">
+    </div>
+    <p>I love you—all ages, all moods, all faces!</p>
+  </div>`,
+  // 3. Find the Word mini-game!
+  `<div class="section" id="findLoveGameContainer"></div>`,
+  // 4. Drawing game placeholder
+  `<div class="section">
+    <h3>Draw a Hug!</h3>
+    <p>Use your finger or mouse to doodle a hug, heart, or smiley (send later for a real-life hug!)</p>
+    <canvas id="drawCanvas" width="239" height="128" style="background:#f5edff;border:2px dashed #ffb4c4;margin:10px"></canvas>
+    <button class="btnRow" style="background:#c1f8de;color:#ae2f85;" onclick="clearCanvas()">Reset Drawing</button>
+  </div>`,
+  // 5. To-do dream list
+  `<div class="section"><h3>Our To-Do's 💭</h3>
+    <ul style="list-style:none;padding:0;font-size:1.09em;">
+      <li>☀️ Watch sunrise together</li>
+      <li>🍣 Try fun new food</li>
+      <li>🎵 Dance at midnight</li>
+      <li>✈️ Dream city trip!</li>
+      <li>🦄 Make a wish on a shooting star</li>
+    </ul>
+    <p>Best adventures: always with you.</p>
+  </div>`,
+  // 6. Special message
+  `<div class="section">
+    <h3>For You</h3>
+    <p>Hey love! 💖
+
+Just wanted to remind you how incredibly special you are to me. No matter what’s going on, you make my world brighter just by being in it. Your smile is the reason for my best days, and your laughter makes everything better. I hope this little message brings you a burst of happiness, because you absolutely deserve it!
+
+Always remember: you’re loved more than words can say, and you’re never alone. Let’s hold onto the happy moments, chase away the worries, and keep making memories together, hand in hand. 🌟
+
+You are my sunshine, my comfort, and my joy. I love you so much! 💕</p>
+  </div>`,
+  // 7. Video
+  `<div class="section">
+    <h3>Our song!</h3>
+    <div style="position:relative;width:99%;padding-top:56%;">
+      <iframe src="we.mp4" allowfullscreen
+        style="position:absolute;width:100%;height:100%;left:0;top:0;border-radius:21px;border:none"></iframe>
+    </div>
+    <p style="color:#b874f1;font-size:0.97em;">(Play and feel my love! 💓)</p>
+  </div>`,
+  // 8. Proposal (interactive popup)
+  `<div class="section" id="proposeContainer"></div>`,
+  // 9. Quiz Game!
+  `<div class="section" id="loveQuiz"></div>`,
+  // 10. Ending
+  `<div class="section"><h2>Always, Forever, YOU! 🥹</h2>
+    <p>
+      We finished our adventure!<br>
+      My wish for you:<br>
+      <span style="color:#f25dce;font-size:1.15em;">Sad? Come here.<br>Happy? Come here.<br>I'm always loving you!</span>
+    </p>
+    <button class="btnRow" style="background:#d1ffc7;color:#ae2f85;margin-top:8px;" onclick="emojiBurst()">BURST Hugs & Hearts 🤗</button>
+    <div style="font-size:1.3em;margin-top:12px;">💖 Tap for a love burst! 💖</div>
+  </div>`
+];
+
+function goNext(){if(page<pages.length-1){page++;renderPage(page);}}
+document.getElementById('prevBtn').onclick = ()=>{if(page>0){page--;renderPage(page);}};
+document.getElementById('nextBtn').onclick = ()=>{if(page<pages.length-1){page++;renderPage(page);}};
+
+renderPage(0);
+
+function renderPage(idx){
+  document.getElementById('app').innerHTML = pages[idx];
+  document.getElementById('prevBtn').disabled = idx === 0;
+  document.getElementById('nextBtn').disabled = idx === pages.length-1;
+  if(idx==2) setupFindLoveGame();
+  if(idx==3) setTimeout(setupCanvas,180);
+  if(idx==7) setTimeout(renderProposal,120);
+  if(idx==8) setTimeout(renderQuiz,120);
+}
+
+// Drawing setup
+function setupCanvas(){
+  const canvas = document.getElementById('drawCanvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  canvas.onmousedown = ()=>drawing=true;
+  canvas.onmouseup = canvas.onmouseleave = ()=>drawing=false;
+  canvas.onmousemove = function(e){
+    if(!drawing)return;
+    const rect = canvas.getBoundingClientRect();
+    ctx.lineTo(e.clientX-rect.left,e.clientY-rect.top);
+    ctx.strokeStyle="#f07bab";
+    ctx.lineWidth=2;
+    ctx.stroke();
+  }
+  canvas.onmousedown = function(e){
+    drawing=true;
+    const rect = canvas.getBoundingClientRect();
+    ctx.beginPath();
+    ctx.moveTo(e.clientX-rect.left, e.clientY-rect.top);
+  }
+}
+function clearCanvas(){
+  const canvas = document.getElementById('drawCanvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
+// Find the Word Game
+function setupFindLoveGame(){
+  const grid = [
+    ['L','A','V','D'],
+    ['Z','O','V','E'],
+    ['Y','L','O','V'],
+    ['O','V','E','L'],
+  ];
+  const findContainer = document.getElementById('findLoveGameContainer');
+  findContainer.innerHTML = `<h3>Find the Word!</h3>
+    <p>Look for <b>LOVE</b> in the grid! Tap and drag across the letters in order.<br>Circle the word when you find it.<br>
+      <span style="font-size:0.89em;">(Bonus: My love is everywhere!)</span></p>
+    <div class="gameGrid"></div>
+    <div class="loveCounter">Found <span id="loveCount">0</span> “LOVE” so far</div>
+    <div class="bonusCounter">Bonus words: <span id="bonusCount">0</span></div>
+  `;
+  let selected = [];
+  let foundCount = 0, bonusCount = 0;
+  const validWords = ['LOVE','VOLE','VOE','LEV','EVE','AVE','LO','VE','LE','OV','EL']; // Sample small/big words
+  let gridEl = findContainer.querySelector('.gameGrid');
+  for(let r=0;r<4;r++)for(let c=0;c<4;c++){
+    let cell = document.createElement('div');
+    cell.className='gridCell'; cell.innerText=grid[r][c];
+    cell.dataset.rc=r+'_'+c;
+    cell.onmousedown = ()=>startSelect(r,c);
+    cell.ontouchstart = function(e){startSelect(r,c);e.preventDefault();}
+    gridEl.appendChild(cell);
+  }
+  gridEl.onmousemove=(e)=>drag(e);
+  gridEl.ontouchmove=(e)=>drag(e.touches[0]);
+  gridEl.onmouseup=finishSelect;
+  gridEl.ontouchend=finishSelect;
+
+  let isSelecting=false;
+  function startSelect(r,c){clearSelection();isSelecting=true;selected=[[r,c]];hiliteCell(r,c);}
+  function drag(e){
+    if(!isSelecting)return;
+    let rect=gridEl.getBoundingClientRect();
+    let x=e.clientX-rect.left,y=e.clientY-rect.top;
+    let c=Math.floor(x/(rect.width/4)),r=Math.floor(y/(rect.height/4));
+    if(r<0||r>3||c<0||c>3)return;
+    if(selected.length&&selected.some(([rr,cc])=>rr==r&&cc==c))return;
+    if(selected.length==0||(Math.abs(selected[selected.length-1][0]-r)<=1&&Math.abs(selected[selected.length-1][1]-c)<=1)){
+      selected.push([r,c]);hiliteCell(r,c);
+    }
+  }
+  function finishSelect(){
+    if(!isSelecting||selected.length<2){clearSelection();return;}
+    let word=selected.map(([r,c])=>grid[r][c]).join('');
+    if(word=='LOVE'){
+      foundCount++;document.getElementById('loveCount').innerText=foundCount;
+      showGridHighlight(selected);
+      emojiBurst(['❤','🥳','😻','💘']);
+      setTimeout(()=>{alert("You found my love! Want to try again?");clearSelection();},900);
+    }
+    else if(word.length>=2&&validWords.includes(word)&&word!=='LOVE'){
+      bonusCount++;document.getElementById('bonusCount').innerText=bonusCount;
+      showGridHighlight(selected);
+      emojiBurst(['🤩','💚','🪄','💙']);
+      setTimeout(()=>{alert(`Bonus word: ${word}! Keep playing`);clearSelection();},700);
+    }
+    else{
+      emojiBurst(['😋','😊','💜']);
+      setTimeout(()=>{alert("Try again!");clearSelection();},500);
+    }
+    isSelecting=false;
+  }
+  function clearSelection(){document.querySelectorAll('.gridCell').forEach(cell=>cell.classList.remove('selected','highlight'));selected=[];}
+  function hiliteCell(r,c){let n=r*4+c;gridEl.children[n].classList.add('selected');}
+  function showGridHighlight(sel){sel.forEach(([r,c])=>{let n=r*4+c;gridEl.children[n].classList.remove('selected');gridEl.children[n].classList.add('highlight');});}
+}
+
+// Proposal page
+function renderProposal(){
+  const el=document.getElementById('proposeContainer');
+  el.innerHTML = `<h2>One day, it’s just us and the stars.</h2>
+    <p>I hold your hand, look in your eyes, and I say:<br>
+    <b>‘Will you be my forever?’</b></p>
+    <div class="btnRow">
+      <button onclick="proposalResponse(true)" style="background:#d1ffc7;color:#ae2f85;font-size:1.13em;">Yes 💍</button>
+      <button onclick="proposalResponse(false)" style="background:#ffd1dc;color:#d7377a;font-size:1.13em;">No 😢</button>
+    </div>`;
+}
+function proposalResponse(yes){
+  let pop=document.getElementById('popDialog');
+  pop.innerHTML='<div class="popup">'+
+    (yes ?
+      `<span class="emoji">🥰</span>
+      <div style="font-size:1.07em;color:#e37;">Yay! You said yes! Let’s dream on together! 💍✨</div>` :
+      `<span class="emoji">😭</span>
+      <div style="font-size:1.07em;color:#8ca;">Aww, my heart is crying! But I still adore you! 💔</div>`) +
+    `<div style="margin-top:19px;"><button onclick="closePop()" style="background:#ebbefc;color:#d73;font-size:1.06em;border-radius:10px;">Close</button></div>
+     </div>`;
+  pop.style.display="block";
+  emojiBurst(yes?['😍','💍','✨','😻','💖']:['😢','😭','💔']);
+}
+function closePop(){document.getElementById('popDialog').style.display="none";}
+
+// Fixed Quiz Questions - all correct indexes are 0-based!
+const quizQuestions = [
+  {question:"What was our first silly nickname?",options:["A. babydoll","B. Chutki","C. Jinie","D. Muffin"],correct:2,correctMsg:"Jinie! Our secret giggle word 💖 Next question…",wrongMsg:"Pretty cute, but not *ours*! Try again, amazing."},
+  {question:"What color do I always say suits you best?",options:["A. Blue","B. Pink","C. Yellow","D. Black"],correct:4,correctMsg:"Black! Looking Sundarr in black (BTW you look sundar in all colors) 🌻 Next please...",wrongMsg:"I love those shades, but there's a #1. Go again?"},
+  {question:"What do we ALWAYS order?",options:["A. Chinese Bhel","B. Pizza","C. Franki","D. Fries"],correct:2,correctMsg:"Franki! (Or Chinese Bhel, but you know!)",wrongMsg:"Almost right, but the classic is…? Try once more!"},
+  {question:"Place we want to visit next?",options:["A. Bandra","B. Golden Temple","C. Mall","D. Iskcon"],correct:3,correctMsg:"Iskcon, here we come! 🗾✨",wrongMsg:"Dreamy place, but not our next! Try again, traveler."},
+  {question:"What’s my favorite way you say \"I love you\"?",options:["A. By Walk","B. Whispered at midnight","C. Voice note","D. Shouted in public"],correct:0,correctMsg:"By Walk! 🥹",wrongMsg:"You always make it sweet, but let's pick my *favorite* way!"},
+  {question:"The moment you first made me say \"wow\"?",options:["A. Our first date outfit","B. Your drawing","C. Your singing","D. Your Photo"],correct:3,correctMsg:"Your Photo! 💘",wrongMsg:"Wow-worthy, but my *first* wow was different! Try again!"},
+  {question:"A song that makes you think of us?",options:["A. Perfect (Ed Sheeran)","B. love Story ","C. Until I found You","D. Blue"],correct:2,correctMsg:"love Story 🎵 Next!",wrongMsg:"Lovely song, but our love one is a special one! Go again!"},
+  {question:"What is your Fav way to show me love?",options:["A. Hugs","B. Sweet Message","C. Surries","D. Just being Together"],correct:3,correctMsg:"Just being Together",wrongMsg:"All adorable, but which was most cringe-cute? Try again!"},
+  {question:"One reason you love me?",options:["A. My hugs","B. My weird jokes","C. My faith in you","D. My sleepy face"],correct:2,correctMsg:"💞My faith in you",wrongMsg:"All sweet, but you KNOW which means the most!"}
+];
+let quizStep=0;
+function renderQuiz(){
+  const el=document.getElementById('loveQuiz');
+  if(quizStep===quizQuestions.length){
+    el.innerHTML = `<h3>Last One! Make me Happy-Cry 😍</h3>
+      <p>Write a happy cry-face for me (art or emoji!):</p>
+      <input type="text" id="cryFace" maxlength="32" placeholder="e.g. (ಥ﹏ಥ) or 🥲🩷"><br>
+      <button class="btnRow" style="background:#d1ffc7;color:#ae2f85;" onclick="finishQuiz()">Finish</button>`;
+    return;
+  }
+  const q=quizQuestions[quizStep];
+  let optsHtml = q.options.map((opt,i)=>
+    `<button class="quizOptionBtn" onclick="checkAnswer(${i})">${opt}</button>`
+  ).join('');
+  el.innerHTML = `<h3>Quiz ${quizStep+1}/${quizQuestions.length+1}</h3>
+    <p style="font-size:1.12em;color:#f681ac;">${q.question}</p>
+    <div>${optsHtml}</div>
+    <div id="quizMsg" style="min-height:32px;margin-top:7px;font-size:1.09em;"></div>`;
+}
+function checkAnswer(idx){
+  const q=quizQuestions[quizStep];
+  const msgDiv=document.getElementById('quizMsg');
+  if(idx===q.correct){
+    msgDiv.innerHTML=`<span style="color:#4ec88f;"><b>${q.correctMsg}</b></span>`;
+    emojiBurst(['🥳','💖','🥰']);
+    setTimeout(()=>{quizStep++;renderQuiz();},1320);
+  } else {
+    msgDiv.innerHTML=`<span style="color:#e981ab;"><b>${q.wrongMsg}</b></span>`;
+    emojiBurst(['🤭','😊','🤗']);
+  }
+}
+function finishQuiz(){
+  const val=document.getElementById('cryFace').value||'(too shy)';
+  document.getElementById('loveQuiz').innerHTML=`
+    <h2>You're My Quiz-Cutie! 🥹</h2>
+    <p>That was adorable! Your happy cry-face:<br> <b>${val}</b></p>
+    <p style="color:#eb83e3;font-size:1.13em;">You aced our love quiz! Sending you a burst of emoji hugs:</p>
+    <button class="btnRow" style="background:#d1ffc7;color:#ae2f85;" onclick="emojiBurst(['😍','💖','💕','✨','🥰','🥹'])">BURST Hugs & Hearts!</button>
+  `;
+}
+
+// Emoji burst animation
+function emojiBurst(emojis){
+  if(!emojis) emojis=["🥹","😍","💖","💕","🌸","🤗","😊","🥰"];
+  const burst=document.getElementById("emojiBurst");
+  burst.innerHTML='';
+  for(let i=0;i<28;i++){
+    let em=document.createElement('span');
+    em.className='emoji';
+    em.innerText=emojis[Math.floor(Math.random()*emojis.length)];
+    em.style.left=Math.random()*93+"vw";
+    em.style.top="80vh";em.style.position="fixed";
+    em.style.animation="pop 2.1s ease-in-out forwards";
+    em.style.animationDelay=(Math.random()*0.6)+"s";
+    em.style.fontSize=(1+Math.random()*2.1)+"em";
+    burst.appendChild(em);
+  }
+  setTimeout(()=>{burst.innerHTML='';},2400);
+}
+</script>
+</body>
+</html>
